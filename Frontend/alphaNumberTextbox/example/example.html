@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <script src="./alphaNumberTextbox.js"></script>
+    <meta charset="UTF-8">
+    <title>輸入限制範例</title>
+</head>
+<body>
+
+    <label for="input1">訂單編號 (僅數字, Max 10):</label>
+    <input type="text" id="input1">
+    <br/>
+    <label for="input2">密碼 (英數, Max 8):</label>
+    <input type="text" id="input2">
+    <br/>
+    <label for="input3">國家代碼 (僅英文, Max 5):</label>
+    <input type="text" id="input3">
+
+    
+       <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input1 = document.getElementById('input1');
+            const input2 = document.getElementById('input2');
+            const input3 = document.getElementById('input3');
+
+            // 呼叫模組中的函數
+            // 範例 1: 數字, Max 10
+            applyInputRestriction(input1, { 
+                maxLength: 10, 
+                pattern: 'number' 
+            });
+
+            // 範例 2: 英文及數字, Max 8
+            applyInputRestriction(input2, { 
+                maxLength: 8, 
+                pattern: 'alphanumeric' 
+            });
+            
+            // 範例 3: 英文, Max 5
+            applyInputRestriction(input3, { 
+                maxLength: 5, 
+                pattern: 'english' 
+            });
+        });
+    </script>
+</body>
+</html>

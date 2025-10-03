@@ -1,0 +1,83 @@
+/**
+ * Apply input restrictions to a specified input element.
+ * @param {HTMLElement} inputElement - Target input element.
+ * @param {object} config - Configuration object.
+ * @param {number} config.maxLength - Maximum number of characters allowed.
+ * @param {('number'|'english'|'alphanumeric')} config.pattern - Allowed character types.
+ */
+
+function applyInputRestriction(inputElement, config) {
+    const defaultConfig = {
+        maxLength: 20,
+        pattern: 'alphanumeric'
+    };
+
+    const { maxLength, pattern } = { ...defaultConfig, ...config };
+
+    let allowedPatternRegex;
+    switch (pattern) {
+        case 'number':
+            allowedPatternRegex = /[^0-9]/g; 
+            break;
+        case 'english':
+            allowedPatternRegex = /[^a-zA-Z]/g; 
+            break;
+        case 'alphanumeric':
+        default:
+            allowedPatternRegex = /[^a-zA-Z0-9]/g; 
+            break;
+    }
+
+    let isComposing = false;
+
+    const handleFilterAndLength = (inputEl) => {
+        let value = inputEl.value;
+        value = value.replace(allowedPatternRegex, '');
+        if (value.length > maxLength) {
+            value = value.substring(0, maxLength);
+        }
+        inputEl.value = value;
+    };
+
+    inputElement.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+
+    inputElement.addEventListener('compositionend', function() {
+        isComposing = false;
+        setTimeout(() => {
+            handleFilterAndLength(this);
+        }, 0); 
+    });
+
+    inputElement.addEventListener('input', function() {
+        if (isComposing) {
+            return;
+        }
+        handleFilterAndLength(this);
+    });
+
+    inputElement.addEventListener('paste', function(event) {
+        event.preventDefault();
+
+        const pasteData = event.clipboardData.getData('text');
+        const currentValue = this.value;
+        const selectionStart = this.selectionStart;
+        const selectionEnd = this.selectionEnd;
+
+        let filteredData = pasteData.replace(allowedPatternRegex, '');
+        const maxAppendLength = maxLength - currentValue.length + (selectionEnd - selectionStart);
+
+        if (filteredData.length > maxAppendLength) {
+            filteredData = filteredData.substring(0, maxAppendLength);
+        }
+
+        this.value = currentValue.substring(0, selectionStart) +
+                     filteredData +
+                     currentValue.substring(selectionEnd);
+        
+        this.selectionStart = this.selectionEnd = selectionStart + filteredData.length;
+    });
+    
+    inputElement.setAttribute('maxlength', maxLength);
+}
